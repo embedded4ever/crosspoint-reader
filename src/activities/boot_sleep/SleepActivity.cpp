@@ -73,13 +73,13 @@ void SleepActivity::renderCustomSleepScreen() const {
       }
 
       if (filename.substr(filename.length() - 4) != ".bmp") {
-        Serial.printf("[%lu] [SLP] Skipping non-.bmp file name: %s\n", millis(), name);
+        //LOG("[%lu] [SLP] Skipping non-.bmp file name: %s\n", millis(), name);
         file.close();
         continue;
       }
       Bitmap bitmap(file);
       if (bitmap.parseHeaders() != BmpReaderError::Ok) {
-        Serial.printf("[%lu] [SLP] Skipping invalid BMP file: %s\n", millis(), name);
+        //LOG("[%lu] [SLP] Skipping invalid BMP file: %s\n", millis(), name);
         file.close();
         continue;
       }
@@ -93,7 +93,7 @@ void SleepActivity::renderCustomSleepScreen() const {
       const auto filename = "/sleep/" + files[randomFileIndex];
       FsFile file;
       if (SdMan.openFileForRead("SLP", filename, file)) {
-        Serial.printf("[%lu] [SLP] Randomly loading: /sleep/%s\n", millis(), files[randomFileIndex].c_str());
+        //LOG("[%lu] [SLP] Randomly loading: /sleep/%s\n", millis(), files[randomFileIndex].c_str());
         delay(100);
         Bitmap bitmap(file);
         if (bitmap.parseHeaders() == BmpReaderError::Ok) {
@@ -112,7 +112,7 @@ void SleepActivity::renderCustomSleepScreen() const {
   if (SdMan.openFileForRead("SLP", "/sleep.bmp", file)) {
     Bitmap bitmap(file);
     if (bitmap.parseHeaders() == BmpReaderError::Ok) {
-      Serial.printf("[%lu] [SLP] Loading: /sleep.bmp\n", millis());
+      //LOG("[%lu] [SLP] Loading: /sleep.bmp\n", millis());
       renderBitmapSleepScreen(bitmap);
       return;
     }

@@ -61,7 +61,7 @@ void EpubReaderActivity::onEnter() {
     if (f.read(data, 4) == 4) {
       currentSpineIndex = data[0] + (data[1] << 8);
       nextPageNumber = data[2] + (data[3] << 8);
-      Serial.printf("[%lu] [ERS] Loaded cache: %d, %d\n", millis(), currentSpineIndex, nextPageNumber);
+      //LOG("[%lu] [ERS] Loaded cache: %d, %d\n", millis(), currentSpineIndex, nextPageNumber);
     }
     f.close();
   }
@@ -260,7 +260,7 @@ void EpubReaderActivity::renderScreen() {
 
   if (!section) {
     const auto filepath = epub->getSpineItem(currentSpineIndex).href;
-    Serial.printf("[%lu] [ERS] Loading file: %s, index: %d\n", millis(), filepath.c_str(), currentSpineIndex);
+    //LOG("[%lu] [ERS] Loading file: %s, index: %d\n", millis(), filepath.c_str(), currentSpineIndex);
     section = std::unique_ptr<Section>(new Section(epub, currentSpineIndex, renderer));
 
     const uint16_t viewportWidth = renderer.getScreenWidth() - orientedMarginLeft - orientedMarginRight;
@@ -269,7 +269,7 @@ void EpubReaderActivity::renderScreen() {
     if (!section->loadSectionFile(SETTINGS.getReaderFontId(), SETTINGS.getReaderLineCompression(),
                                   SETTINGS.extraParagraphSpacing, SETTINGS.paragraphAlignment, viewportWidth,
                                   viewportHeight)) {
-      Serial.printf("[%lu] [ERS] Cache not found, building...\n", millis());
+      //LOG("[%lu] [ERS] Cache not found, building...\n", millis());
 
       // Progress bar dimensions
       constexpr int barWidth = 200;
@@ -314,12 +314,12 @@ void EpubReaderActivity::renderScreen() {
       if (!section->createSectionFile(SETTINGS.getReaderFontId(), SETTINGS.getReaderLineCompression(),
                                       SETTINGS.extraParagraphSpacing, SETTINGS.paragraphAlignment, viewportWidth,
                                       viewportHeight, progressSetup, progressCallback)) {
-        Serial.printf("[%lu] [ERS] Failed to persist page data to SD\n", millis());
+        //LOG("[%lu] [ERS] Failed to persist page data to SD\n", millis());
         section.reset();
         return;
       }
     } else {
-      Serial.printf("[%lu] [ERS] Cache found, skipping build...\n", millis());
+      //LOG("[%lu] [ERS] Cache found, skipping build...\n", millis());
     }
 
     if (nextPageNumber == UINT16_MAX) {
@@ -332,7 +332,7 @@ void EpubReaderActivity::renderScreen() {
   renderer.clearScreen();
 
   if (section->pageCount == 0) {
-    Serial.printf("[%lu] [ERS] No pages to render\n", millis());
+    //LOG("[%lu] [ERS] No pages to render\n", millis());
     renderer.drawCenteredText(UI_12_FONT_ID, 300, "Empty chapter", true, EpdFontFamily::BOLD);
     renderStatusBar(orientedMarginRight, orientedMarginBottom, orientedMarginLeft);
     renderer.displayBuffer();
@@ -340,7 +340,7 @@ void EpubReaderActivity::renderScreen() {
   }
 
   if (section->currentPage < 0 || section->currentPage >= section->pageCount) {
-    Serial.printf("[%lu] [ERS] Page out of bounds: %d (max %d)\n", millis(), section->currentPage, section->pageCount);
+    //LOG("[%lu] [ERS] Page out of bounds: %d (max %d)\n", millis(), section->currentPage, section->pageCount);
     renderer.drawCenteredText(UI_12_FONT_ID, 300, "Out of bounds", true, EpdFontFamily::BOLD);
     renderStatusBar(orientedMarginRight, orientedMarginBottom, orientedMarginLeft);
     renderer.displayBuffer();
@@ -350,14 +350,14 @@ void EpubReaderActivity::renderScreen() {
   {
     auto p = section->loadPageFromSectionFile();
     if (!p) {
-      Serial.printf("[%lu] [ERS] Failed to load page from SD - clearing section cache\n", millis());
+      //LOG("[%lu] [ERS] Failed to load page from SD - clearing section cache\n", millis());
       section->clearCache();
       section.reset();
       return renderScreen();
     }
     const auto start = millis();
     renderContents(std::move(p), orientedMarginTop, orientedMarginRight, orientedMarginBottom, orientedMarginLeft);
-    Serial.printf("[%lu] [ERS] Rendered page in %dms\n", millis(), millis() - start);
+    //LOG("[%lu] [ERS] Rendered page in %dms\n", millis(), millis() - start);
   }
 
   FsFile f;

@@ -14,16 +14,16 @@ constexpr uint32_t HEADER_SIZE = sizeof(uint8_t) + sizeof(int) + sizeof(float) +
 
 uint32_t Section::onPageComplete(std::unique_ptr<Page> page) {
   if (!file) {
-    Serial.printf("[%lu] [SCT] File not open for writing page %d\n", millis(), pageCount);
+    //LOG("[%lu] [SCT] File not open for writing page %d\n", millis(), pageCount);
     return 0;
   }
 
   const uint32_t position = file.position();
   if (!page->serialize(file)) {
-    Serial.printf("[%lu] [SCT] Failed to serialize page %d\n", millis(), pageCount);
+    //LOG("[%lu] [SCT] Failed to serialize page %d\n", millis(), pageCount);
     return 0;
   }
-  Serial.printf("[%lu] [SCT] Page %d processed\n", millis(), pageCount);
+  //LOG("[%lu] [SCT] Page %d processed\n", millis(), pageCount);
 
   pageCount++;
   return position;
@@ -33,7 +33,7 @@ void Section::writeSectionFileHeader(const int fontId, const float lineCompressi
                                      const uint8_t paragraphAlignment, const uint16_t viewportWidth,
                                      const uint16_t viewportHeight) {
   if (!file) {
-    Serial.printf("[%lu] [SCT] File not open for writing header\n", millis());
+    //LOG("[%lu] [SCT] File not open for writing header\n", millis());
     return;
   }
   static_assert(HEADER_SIZE == sizeof(SECTION_FILE_VERSION) + sizeof(fontId) + sizeof(lineCompression) +
@@ -64,7 +64,7 @@ bool Section::loadSectionFile(const int fontId, const float lineCompression, con
     serialization::readPod(file, version);
     if (version != SECTION_FILE_VERSION) {
       file.close();
-      Serial.printf("[%lu] [SCT] Deserialization failed: Unknown version %u\n", millis(), version);
+      //LOG("[%lu] [SCT] Deserialization failed: Unknown version %u\n", millis(), version);
       clearCache();
       return false;
     }
@@ -85,7 +85,7 @@ bool Section::loadSectionFile(const int fontId, const float lineCompression, con
         extraParagraphSpacing != fileExtraParagraphSpacing || paragraphAlignment != fileParagraphAlignment ||
         viewportWidth != fileViewportWidth || viewportHeight != fileViewportHeight) {
       file.close();
-      Serial.printf("[%lu] [SCT] Deserialization failed: Parameters do not match\n", millis());
+      //LOG("[%lu] [SCT] Deserialization failed: Parameters do not match\n", millis());
       clearCache();
       return false;
     }
@@ -93,23 +93,23 @@ bool Section::loadSectionFile(const int fontId, const float lineCompression, con
 
   serialization::readPod(file, pageCount);
   file.close();
-  Serial.printf("[%lu] [SCT] Deserialization succeeded: %d pages\n", millis(), pageCount);
+  //LOG("[%lu] [SCT] Deserialization succeeded: %d pages\n", millis(), pageCount);
   return true;
 }
 
 // Your updated class method (assuming you are using the 'SD' object, which is a wrapper for a specific filesystem)
 bool Section::clearCache() const {
   if (!SdMan.exists(filePath.c_str())) {
-    Serial.printf("[%lu] [SCT] Cache does not exist, no action needed\n", millis());
+    //LOG("[%lu] [SCT] Cache does not exist, no action needed\n", millis());
     return true;
   }
 
   if (!SdMan.remove(filePath.c_str())) {
-    Serial.printf("[%lu] [SCT] Failed to clear cache\n", millis());
+    //LOG("[%lu] [SCT] Failed to clear cache\n", millis());
     return false;
   }
 
-  Serial.printf("[%lu] [SCT] Cache cleared successfully\n", millis());
+  //LOG("[%lu] [SCT] Cache cleared successfully\n", millis());
   return true;
 }
 
@@ -132,7 +132,7 @@ bool Section::createSectionFile(const int fontId, const float lineCompression, c
   uint32_t fileSize = 0;
   for (int attempt = 0; attempt < 3 && !success; attempt++) {
     if (attempt > 0) {
-      Serial.printf("[%lu] [SCT] Retrying stream (attempt %d)...\n", millis(), attempt + 1);
+      //LOG("[%lu] [SCT] Retrying stream (attempt %d)...\n", millis(), attempt + 1);
       delay(50);  // Brief delay before retry
     }
 
@@ -152,16 +152,16 @@ bool Section::createSectionFile(const int fontId, const float lineCompression, c
     // If streaming failed, remove the incomplete file immediately
     if (!success && SdMan.exists(tmpHtmlPath.c_str())) {
       SdMan.remove(tmpHtmlPath.c_str());
-      Serial.printf("[%lu] [SCT] Removed incomplete temp file after failed attempt\n", millis());
+      //LOG("[%lu] [SCT] Removed incomplete temp file after failed attempt\n", millis());
     }
   }
 
   if (!success) {
-    Serial.printf("[%lu] [SCT] Failed to stream item contents to temp file after retries\n", millis());
+    //LOG("[%lu] [SCT] Failed to stream item contents to temp file after retries\n", millis());
     return false;
   }
 
-  Serial.printf("[%lu] [SCT] Streamed temp HTML to %s (%d bytes)\n", millis(), tmpHtmlPath.c_str(), fileSize);
+  //LOG("[%lu] [SCT] Streamed temp HTML to %s (%d bytes)\n", millis(), tmpHtmlPath.c_str(), fileSize);
 
   // Only show progress bar for larger chapters where rendering overhead is worth it
   if (progressSetupFn && fileSize >= MIN_SIZE_FOR_PROGRESS) {
@@ -184,7 +184,7 @@ bool Section::createSectionFile(const int fontId, const float lineCompression, c
 
   SdMan.remove(tmpHtmlPath.c_str());
   if (!success) {
-    Serial.printf("[%lu] [SCT] Failed to parse XML and build pages\n", millis());
+    //LOG("[%lu] [SCT] Failed to parse XML and build pages\n", millis());
     file.close();
     SdMan.remove(filePath.c_str());
     return false;
@@ -202,7 +202,7 @@ bool Section::createSectionFile(const int fontId, const float lineCompression, c
   }
 
   if (hasFailedLutRecords) {
-    Serial.printf("[%lu] [SCT] Failed to write LUT due to invalid page positions\n", millis());
+    //LOG("[%lu] [SCT] Failed to write LUT due to invalid page positions\n", millis());
     file.close();
     SdMan.remove(filePath.c_str());
     return false;

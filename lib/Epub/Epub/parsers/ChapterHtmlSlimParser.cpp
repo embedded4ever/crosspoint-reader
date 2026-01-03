@@ -167,7 +167,7 @@ void XMLCALL ChapterHtmlSlimParser::characterData(void* userData, const XML_Char
   // memory.
   // Spotted when reading Intermezzo, there are some really long text blocks in there.
   if (self->currentTextBlock->size() > 750) {
-    Serial.printf("[%lu] [EHP] Text block too long, splitting into multiple pages\n", millis());
+    //LOG("[%lu] [EHP] Text block too long, splitting into multiple pages\n", millis());
     self->currentTextBlock->layoutAndExtractLines(
         self->renderer, self->fontId, self->viewportWidth,
         [self](const std::shared_ptr<TextBlock>& textBlock) { self->addLineToPage(textBlock); }, false);
@@ -227,7 +227,7 @@ bool ChapterHtmlSlimParser::parseAndBuildPages() {
   int done;
 
   if (!parser) {
-    Serial.printf("[%lu] [EHP] Couldn't allocate memory for parser\n", millis());
+    //LOG("[%lu] [EHP] Couldn't allocate memory for parser\n", millis());
     return false;
   }
 
@@ -249,7 +249,7 @@ bool ChapterHtmlSlimParser::parseAndBuildPages() {
   do {
     void* const buf = XML_GetBuffer(parser, 1024);
     if (!buf) {
-      Serial.printf("[%lu] [EHP] Couldn't allocate memory for buffer\n", millis());
+      //LOG("[%lu] [EHP] Couldn't allocate memory for buffer\n", millis());
       XML_StopParser(parser, XML_FALSE);                // Stop any pending processing
       XML_SetElementHandler(parser, nullptr, nullptr);  // Clear callbacks
       XML_SetCharacterDataHandler(parser, nullptr);
@@ -261,7 +261,7 @@ bool ChapterHtmlSlimParser::parseAndBuildPages() {
     const size_t len = file.read(buf, 1024);
 
     if (len == 0 && file.available() > 0) {
-      Serial.printf("[%lu] [EHP] File read error\n", millis());
+      //LOG("[%lu] [EHP] File read error\n", millis());
       XML_StopParser(parser, XML_FALSE);                // Stop any pending processing
       XML_SetElementHandler(parser, nullptr, nullptr);  // Clear callbacks
       XML_SetCharacterDataHandler(parser, nullptr);
@@ -327,7 +327,7 @@ void ChapterHtmlSlimParser::addLineToPage(std::shared_ptr<TextBlock> line) {
 
 void ChapterHtmlSlimParser::makePages() {
   if (!currentTextBlock) {
-    Serial.printf("[%lu] [EHP] !! No text block to make pages for !!\n", millis());
+    //LOG("[%lu] [EHP] !! No text block to make pages for !!\n", millis());
     return;
   }
 

@@ -7,7 +7,7 @@
 bool TocNcxParser::setup() {
   parser = XML_ParserCreate(nullptr);
   if (!parser) {
-    Serial.printf("[%lu] [TOC] Couldn't allocate memory for parser\n", millis());
+    //LOG("[%lu] [TOC] Couldn't allocate memory for parser\n", millis());
     return false;
   }
 
@@ -38,7 +38,7 @@ size_t TocNcxParser::write(const uint8_t* buffer, const size_t size) {
   while (remainingInBuffer > 0) {
     void* const buf = XML_GetBuffer(parser, 1024);
     if (!buf) {
-      Serial.printf("[%lu] [TOC] Couldn't allocate memory for buffer\n", millis());
+      //LOG("[%lu] [TOC] Couldn't allocate memory for buffer\n", millis());
       XML_StopParser(parser, XML_FALSE);                // Stop any pending processing
       XML_SetElementHandler(parser, nullptr, nullptr);  // Clear callbacks
       XML_SetCharacterDataHandler(parser, nullptr);

@@ -14,14 +14,14 @@ OtaUpdater::OtaUpdaterError OtaUpdater::checkForUpdate() {
   client->setInsecure();
   HTTPClient http;
 
-  Serial.printf("[%lu] [OTA] Fetching: %s\n", millis(), latestReleaseUrl);
+  //LOG("[%lu] [OTA] Fetching: %s\n", millis(), latestReleaseUrl);
 
   http.begin(*client, latestReleaseUrl);
   http.addHeader("User-Agent", "CrossPoint-ESP32-" CROSSPOINT_VERSION);
 
   const int httpCode = http.GET();
   if (httpCode != HTTP_CODE_OK) {
-    Serial.printf("[%lu] [OTA] HTTP error: %d\n", millis(), httpCode);
+    //LOG("[%lu] [OTA] HTTP error: %d\n", millis(), httpCode);
     http.end();
     return HTTP_ERROR;
   }
@@ -35,16 +35,16 @@ OtaUpdater::OtaUpdaterError OtaUpdater::checkForUpdate() {
   const DeserializationError error = deserializeJson(doc, *client, DeserializationOption::Filter(filter));
   http.end();
   if (error) {
-    Serial.printf("[%lu] [OTA] JSON parse failed: %s\n", millis(), error.c_str());
+    //LOG("[%lu] [OTA] JSON parse failed: %s\n", millis(), error.c_str());
     return JSON_PARSE_ERROR;
   }
 
   if (!doc["tag_name"].is<std::string>()) {
-    Serial.printf("[%lu] [OTA] No tag_name found\n", millis());
+    //LOG("[%lu] [OTA] No tag_name found\n", millis());
     return JSON_PARSE_ERROR;
   }
   if (!doc["assets"].is<JsonArray>()) {
-    Serial.printf("[%lu] [OTA] No assets found\n", millis());
+    //LOG("[%lu] [OTA] No assets found\n", millis());
     return JSON_PARSE_ERROR;
   }
 
@@ -61,11 +61,11 @@ OtaUpdater::OtaUpdaterError OtaUpdater::checkForUpdate() {
   }
 
   if (!updateAvailable) {
-    Serial.printf("[%lu] [OTA] No firmware.bin asset found\n", millis());
+    //LOG("[%lu] [OTA] No firmware.bin asset found\n", millis());
     return NO_UPDATE;
   }
 
-  Serial.printf("[%lu] [OTA] Found update: %s\n", millis(), latestVersion.c_str());
+  //LOG("[%lu] [OTA] Found update: %s\n", millis(), latestVersion.c_str());
   return OK;
 }
 
@@ -117,7 +117,7 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(const std::function<void(s
   client->setInsecure();
   HTTPClient http;
 
-  Serial.printf("[%lu] [OTA] Fetching: %s\n", millis(), otaUrl.c_str());
+  //LOG("[%lu] [OTA] Fetching: %s\n", millis(), otaUrl.c_str());
 
   http.begin(*client, otaUrl.c_str());
   http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
@@ -125,7 +125,7 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(const std::function<void(s
   const int httpCode = http.GET();
 
   if (httpCode != HTTP_CODE_OK) {
-    Serial.printf("[%lu] [OTA] Download failed: %d\n", millis(), httpCode);
+    //LOG("[%lu] [OTA] Download failed: %d\n", millis(), httpCode);
     http.end();
     return HTTP_ERROR;
   }
@@ -134,20 +134,20 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(const std::function<void(s
   const size_t contentLength = http.getSize();
 
   if (contentLength != otaSize) {
-    Serial.printf("[%lu] [OTA] Invalid content length\n", millis());
+    //LOG("[%lu] [OTA] Invalid content length\n", millis());
     http.end();
     return HTTP_ERROR;
   }
 
   // 3. Begin the ESP-IDF Update process
   if (!Update.begin(otaSize)) {
-    Serial.printf("[%lu] [OTA] Not enough space. Error: %s\n", millis(), Update.errorString());
+    //LOG("[%lu] [OTA] Not enough space. Error: %s\n", millis(), Update.errorString());
     http.end();
     return INTERNAL_UPDATE_ERROR;
   }
 
   this->totalSize = otaSize;
-  Serial.printf("[%lu] [OTA] Update started\n", millis());
+  //LOG("[%lu] [OTA] Update started\n", millis());
   Update.onProgress([this, onProgress](const size_t progress, const size_t total) {
     this->processedSize = progress;
     this->totalSize = total;
@@ -157,7 +157,7 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(const std::function<void(s
   http.end();
 
   if (written == otaSize) {
-    Serial.printf("[%lu] [OTA] Successfully written %u bytes\n", millis(), written);
+    //LOG("[%lu] [OTA] Successfully written %u bytes\n", millis(), written);
   } else {
     Serial.printf("[%lu] [OTA] Written only %u/%u bytes. Error: %s\n", millis(), written, otaSize,
                   Update.errorString());
@@ -165,10 +165,10 @@ OtaUpdater::OtaUpdaterError OtaUpdater::installUpdate(const std::function<void(s
   }
 
   if (Update.end() && Update.isFinished()) {
-    Serial.printf("[%lu] [OTA] Update complete\n", millis());
+    //LOG("[%lu] [OTA] Update complete\n", millis());
     return OK;
   } else {
-    Serial.printf("[%lu] [OTA] Error Occurred: %s\n", millis(), Update.errorString());
+    //LOG("[%lu] [OTA] Error Occurred: %s\n", millis(), Update.errorString());
     return INTERNAL_UPDATE_ERROR;
   }
 }

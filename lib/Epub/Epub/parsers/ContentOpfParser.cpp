@@ -14,7 +14,7 @@ constexpr char itemCacheFile[] = "/.items.bin";
 bool ContentOpfParser::setup() {
   parser = XML_ParserCreate(nullptr);
   if (!parser) {
-    Serial.printf("[%lu] [COF] Couldn't allocate memory for parser\n", millis());
+    //LOG("[%lu] [COF] Couldn't allocate memory for parser\n", millis());
     return false;
   }
 
@@ -52,7 +52,7 @@ size_t ContentOpfParser::write(const uint8_t* buffer, const size_t size) {
     void* const buf = XML_GetBuffer(parser, 1024);
 
     if (!buf) {
-      Serial.printf("[%lu] [COF] Couldn't allocate memory for buffer\n", millis());
+      //LOG("[%lu] [COF] Couldn't allocate memory for buffer\n", millis());
       XML_StopParser(parser, XML_FALSE);                // Stop any pending processing
       XML_SetElementHandler(parser, nullptr, nullptr);  // Clear callbacks
       XML_SetCharacterDataHandler(parser, nullptr);
@@ -130,7 +130,7 @@ void XMLCALL ContentOpfParser::startElement(void* userData, const XML_Char* name
   if (self->state == IN_PACKAGE && (strcmp(name, "guide") == 0 || strcmp(name, "opf:guide") == 0)) {
     self->state = IN_GUIDE;
     // TODO Remove print
-    Serial.printf("[%lu] [COF] Entering guide state.\n", millis());
+    //LOG("[%lu] [COF] Entering guide state.\n", millis());
     if (!SdMan.openFileForRead("COF", self->cachePath + itemCacheFile, self->tempItemStore)) {
       Serial.printf(
           "[%lu] [COF] Couldn't open temp items file for reading. This is probably going to be a fatal error.\n",
@@ -227,7 +227,7 @@ void XMLCALL ContentOpfParser::startElement(void* userData, const XML_Char* name
         if (type == "text" || type == "start") {
           continue;
         } else {
-          Serial.printf("[%lu] [COF] Skipping non-text reference in guide: %s\n", millis(), type.c_str());
+          //LOG("[%lu] [COF] Skipping non-text reference in guide: %s\n", millis(), type.c_str());
           break;
         }
       } else if (strcmp(atts[i], "href") == 0) {
@@ -235,7 +235,7 @@ void XMLCALL ContentOpfParser::startElement(void* userData, const XML_Char* name
       }
     }
     if ((type == "text" || (type == "start" && !self->textReferenceHref.empty())) && (textHref.length() > 0)) {
-      Serial.printf("[%lu] [COF] Found %s reference in guide: %s.\n", millis(), type.c_str(), textHref.c_str());
+      //LOG("[%lu] [COF] Found %s reference in guide: %s.\n", millis(), type.c_str(), textHref.c_str());
       self->textReferenceHref = textHref;
     }
     return;

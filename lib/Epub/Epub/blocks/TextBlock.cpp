@@ -55,7 +55,7 @@ std::unique_ptr<TextBlock> TextBlock::deserialize(FsFile& file) {
 
   // Sanity check: prevent allocation of unreasonably large lists (max 10000 words per block)
   if (wc > 10000) {
-    Serial.printf("[%lu] [TXB] Deserialization failed: word count %u exceeds maximum\n", millis(), wc);
+    //LOG("[%lu] [TXB] Deserialization failed: word count %u exceeds maximum\n", millis(), wc);
     return nullptr;
   }
 

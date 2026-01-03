@@ -195,8 +195,8 @@ void enterDeepSleep() {
   enterNewActivity(new SleepActivity(renderer, mappedInputManager));
 
   einkDisplay.deepSleep();
-  Serial.printf("[%lu] [   ] Power button press calibration value: %lu ms\n", millis(), t2 - t1);
-  Serial.printf("[%lu] [   ] Entering deep sleep.\n", millis());
+  //LOG("[%lu] [   ] Power button press calibration value: %lu ms\n", millis(), t2 - t1);
+  //LOG("[%lu] [   ] Entering deep sleep.\n", millis());
   esp_deep_sleep_enable_gpio_wakeup(1ULL << InputManager::POWER_BUTTON_PIN, ESP_GPIO_WAKEUP_GPIO_LOW);
   // Ensure that the power button has been released to avoid immediately turning back on if you're holding it
   waitForPowerRelease();
@@ -230,7 +230,7 @@ void onGoHome() {
 
 void setupDisplayAndFonts() {
   einkDisplay.begin();
-  Serial.printf("[%lu] [   ] Display initialized\n", millis());
+  //LOG("[%lu] [   ] Display initialized\n", millis());
   renderer.insertFont(BOOKERLY_12_FONT_ID, bookerly12FontFamily);
   renderer.insertFont(BOOKERLY_14_FONT_ID, bookerly14FontFamily);
   renderer.insertFont(BOOKERLY_16_FONT_ID, bookerly16FontFamily);
@@ -246,7 +246,7 @@ void setupDisplayAndFonts() {
   renderer.insertFont(UI_10_FONT_ID, ui10FontFamily);
   renderer.insertFont(UI_12_FONT_ID, ui12FontFamily);
   renderer.insertFont(SMALL_FONT_ID, smallFontFamily);
-  Serial.printf("[%lu] [   ] Fonts setup\n", millis());
+  //LOG("[%lu] [   ] Fonts setup\n", millis());
 }
 
 void setup() {
@@ -268,7 +268,7 @@ void setup() {
   // SD Card Initialization
   // We need 6 open files concurrently when parsing a new chapter
   if (!SdMan.begin()) {
-    Serial.printf("[%lu] [   ] SD card initialization failed\n", millis());
+    //LOG("[%lu] [   ] SD card initialization failed\n", millis());
     setupDisplayAndFonts();
     exitActivity();
     enterNewActivity(new FullScreenMessageActivity(renderer, mappedInputManager, "SD card error", EpdFontFamily::BOLD));
@@ -281,7 +281,7 @@ void setup() {
   verifyWakeupLongPress();
 
   // First serial output only here to avoid timing inconsistencies for power button press duration verification
-  Serial.printf("[%lu] [   ] Starting CrossPoint version " CROSSPOINT_VERSION "\n", millis());
+  //LOG("[%lu] [   ] Starting CrossPoint version " CROSSPOINT_VERSION "\n", millis());
 
   setupDisplayAndFonts();
 
@@ -324,7 +324,7 @@ void loop() {
   }
 
   if (millis() - lastActivityTime >= AUTO_SLEEP_TIMEOUT_MS) {
-    Serial.printf("[%lu] [SLP] Auto-sleep triggered after %lu ms of inactivity\n", millis(), AUTO_SLEEP_TIMEOUT_MS);
+    //LOG("[%lu] [SLP] Auto-sleep triggered after %lu ms of inactivity\n", millis(), AUTO_SLEEP_TIMEOUT_MS);
     enterDeepSleep();
     // This should never be hit as `enterDeepSleep` calls esp_deep_sleep_start
     return;

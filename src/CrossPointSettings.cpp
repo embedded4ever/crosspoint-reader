@@ -40,7 +40,7 @@ bool CrossPointSettings::saveToFile() const {
   serialization::writePod(outputFile, paragraphAlignment);
   outputFile.close();
 
-  Serial.printf("[%lu] [CPS] Settings saved to file\n", millis());
+  //LOG("[%lu] [CPS] Settings saved to file\n", millis());
   return true;
 }
 
@@ -53,7 +53,7 @@ bool CrossPointSettings::loadFromFile() {
   uint8_t version;
   serialization::readPod(inputFile, version);
   if (version != SETTINGS_FILE_VERSION) {
-    Serial.printf("[%lu] [CPS] Deserialization failed: Unknown version %u\n", millis(), version);
+    //LOG("[%lu] [CPS] Deserialization failed: Unknown version %u\n", millis(), version);
     inputFile.close();
     return false;
   }
@@ -89,7 +89,7 @@ bool CrossPointSettings::loadFromFile() {
   } while (false);
 
   inputFile.close();
-  Serial.printf("[%lu] [CPS] Settings loaded from file\n", millis());
+  //LOG("[%lu] [CPS] Settings loaded from file\n", millis());
   return true;
 }
 

@@ -40,7 +40,7 @@ void GfxRenderer::drawPixel(const int x, const int y, const bool state) const {
 
   // Early return if no framebuffer is set
   if (!frameBuffer) {
-    Serial.printf("[%lu] [GFX] !! No framebuffer\n", millis());
+    //LOG("[%lu] [GFX] !! No framebuffer\n", millis());
     return;
   }
 
@@ -51,7 +51,7 @@ void GfxRenderer::drawPixel(const int x, const int y, const bool state) const {
   // Bounds checking against physical panel dimensions
   if (rotatedX < 0 || rotatedX >= EInkDisplay::DISPLAY_WIDTH || rotatedY < 0 ||
       rotatedY >= EInkDisplay::DISPLAY_HEIGHT) {
-    Serial.printf("[%lu] [GFX] !! Outside range (%d, %d) -> (%d, %d)\n", millis(), x, y, rotatedX, rotatedY);
+    //LOG("[%lu] [GFX] !! Outside range (%d, %d) -> (%d, %d)\n", millis(), x, y, rotatedX, rotatedY);
     return;
   }
 
@@ -68,7 +68,7 @@ void GfxRenderer::drawPixel(const int x, const int y, const bool state) const {
 
 int GfxRenderer::getTextWidth(const int fontId, const char* text, const EpdFontFamily::Style style) const {
   if (fontMap.count(fontId) == 0) {
-    Serial.printf("[%lu] [GFX] Font %d not found\n", millis(), fontId);
+    //LOG("[%lu] [GFX] Font %d not found\n", millis(), fontId);
     return 0;
   }
 
@@ -94,7 +94,7 @@ void GfxRenderer::drawText(const int fontId, const int x, const int y, const cha
   }
 
   if (fontMap.count(fontId) == 0) {
-    Serial.printf("[%lu] [GFX] Font %d not found\n", millis(), fontId);
+    //LOG("[%lu] [GFX] Font %d not found\n", millis(), fontId);
     return;
   }
   const auto font = fontMap.at(fontId);
@@ -127,7 +127,7 @@ void GfxRenderer::drawLine(int x1, int y1, int x2, int y2, const bool state) con
     }
   } else {
     // TODO: Implement
-    Serial.printf("[%lu] [GFX] Line drawing not supported\n", millis());
+    //LOG("[%lu] [GFX] Line drawing not supported\n", millis());
   }
 }
 
@@ -172,7 +172,7 @@ void GfxRenderer::drawBitmap(const Bitmap& bitmap, const int x, const int y, con
   auto* rowBytes = static_cast<uint8_t*>(malloc(bitmap.getRowBytes()));
 
   if (!outputRow || !rowBytes) {
-    Serial.printf("[%lu] [GFX] !! Failed to allocate BMP row buffers\n", millis());
+    //LOG("[%lu] [GFX] !! Failed to allocate BMP row buffers\n", millis());
     free(outputRow);
     free(rowBytes);
     return;
@@ -190,7 +190,7 @@ void GfxRenderer::drawBitmap(const Bitmap& bitmap, const int x, const int y, con
     }
 
     if (bitmap.readRow(outputRow, rowBytes, bmpY) != BmpReaderError::Ok) {
-      Serial.printf("[%lu] [GFX] Failed to read row %d from bitmap\n", millis(), bmpY);
+      //LOG("[%lu] [GFX] Failed to read row %d from bitmap\n", millis(), bmpY);
       free(outputRow);
       free(rowBytes);
       return;
@@ -226,7 +226,7 @@ void GfxRenderer::clearScreen(const uint8_t color) const { einkDisplay.clearScre
 void GfxRenderer::invertScreen() const {
   uint8_t* buffer = einkDisplay.getFrameBuffer();
   if (!buffer) {
-    Serial.printf("[%lu] [GFX] !! No framebuffer in invertScreen\n", millis());
+    //LOG("[%lu] [GFX] !! No framebuffer in invertScreen\n", millis());
     return;
   }
   for (int i = 0; i < EInkDisplay::BUFFER_SIZE; i++) {
@@ -280,7 +280,7 @@ int GfxRenderer::getScreenHeight() const {
 
 int GfxRenderer::getSpaceWidth(const int fontId) const {
   if (fontMap.count(fontId) == 0) {
-    Serial.printf("[%lu] [GFX] Font %d not found\n", millis(), fontId);
+    //LOG("[%lu] [GFX] Font %d not found\n", millis(), fontId);
     return 0;
   }
 
@@ -289,7 +289,7 @@ int GfxRenderer::getSpaceWidth(const int fontId) const {
 
 int GfxRenderer::getFontAscenderSize(const int fontId) const {
   if (fontMap.count(fontId) == 0) {
-    Serial.printf("[%lu] [GFX] Font %d not found\n", millis(), fontId);
+    //LOG("[%lu] [GFX] Font %d not found\n", millis(), fontId);
     return 0;
   }
 
@@ -298,7 +298,7 @@ int GfxRenderer::getFontAscenderSize(const int fontId) const {
 
 int GfxRenderer::getLineHeight(const int fontId) const {
   if (fontMap.count(fontId) == 0) {
-    Serial.printf("[%lu] [GFX] Font %d not found\n", millis(), fontId);
+    //LOG("[%lu] [GFX] Font %d not found\n", millis(), fontId);
     return 0;
   }
 
@@ -357,7 +357,7 @@ void GfxRenderer::freeBwBufferChunks() {
 bool GfxRenderer::storeBwBuffer() {
   const uint8_t* frameBuffer = einkDisplay.getFrameBuffer();
   if (!frameBuffer) {
-    Serial.printf("[%lu] [GFX] !! No framebuffer in storeBwBuffer\n", millis());
+    //LOG("[%lu] [GFX] !! No framebuffer in storeBwBuffer\n", millis());
     return false;
   }
 
@@ -412,7 +412,7 @@ void GfxRenderer::restoreBwBuffer() {
 
   uint8_t* frameBuffer = einkDisplay.getFrameBuffer();
   if (!frameBuffer) {
-    Serial.printf("[%lu] [GFX] !! No framebuffer in restoreBwBuffer\n", millis());
+    //LOG("[%lu] [GFX] !! No framebuffer in restoreBwBuffer\n", millis());
     freeBwBufferChunks();
     return;
   }
@@ -420,7 +420,7 @@ void GfxRenderer::restoreBwBuffer() {
   for (size_t i = 0; i < BW_BUFFER_NUM_CHUNKS; i++) {
     // Check if chunk is missing
     if (!bwBufferChunks[i]) {
-      Serial.printf("[%lu] [GFX] !! BW buffer chunks not stored - this is likely a bug\n", millis());
+      //LOG("[%lu] [GFX] !! BW buffer chunks not stored - this is likely a bug\n", millis());
       freeBwBufferChunks();
       return;
     }
@@ -432,7 +432,7 @@ void GfxRenderer::restoreBwBuffer() {
   einkDisplay.cleanupGrayscaleBuffers(frameBuffer);
 
   freeBwBufferChunks();
-  Serial.printf("[%lu] [GFX] Restored and freed BW buffer chunks\n", millis());
+  //LOG("[%lu] [GFX] Restored and freed BW buffer chunks\n", millis());
 }
 
 /**
@@ -456,7 +456,7 @@ void GfxRenderer::renderChar(const EpdFontFamily& fontFamily, const uint32_t cp,
 
   // no glyph?
   if (!glyph) {
-    Serial.printf("[%lu] [GFX] No glyph for codepoint %d\n", millis(), cp);
+    //LOG("[%lu] [GFX] No glyph for codepoint %d\n", millis(), cp);
     return;
   }
 

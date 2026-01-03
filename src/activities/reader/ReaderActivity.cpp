@@ -28,7 +28,7 @@ bool ReaderActivity::isXtcFile(const std::string& path) {
 
 std::unique_ptr<Epub> ReaderActivity::loadEpub(const std::string& path) {
   if (!SdMan.exists(path.c_str())) {
-    Serial.printf("[%lu] [   ] File does not exist: %s\n", millis(), path.c_str());
+    //LOG("[%lu] [   ] File does not exist: %s\n", millis(), path.c_str());
     return nullptr;
   }
 
@@ -37,13 +37,13 @@ std::unique_ptr<Epub> ReaderActivity::loadEpub(const std::string& path) {
     return epub;
   }
 
-  Serial.printf("[%lu] [   ] Failed to load epub\n", millis());
+  //LOG("[%lu] [   ] Failed to load epub\n", millis());
   return nullptr;
 }
 
 std::unique_ptr<Xtc> ReaderActivity::loadXtc(const std::string& path) {
   if (!SdMan.exists(path.c_str())) {
-    Serial.printf("[%lu] [   ] File does not exist: %s\n", millis(), path.c_str());
+    //LOG("[%lu] [   ] File does not exist: %s\n", millis(), path.c_str());
     return nullptr;
   }
 
@@ -52,7 +52,7 @@ std::unique_ptr<Xtc> ReaderActivity::loadXtc(const std::string& path) {
     return xtc;
   }
 
-  Serial.printf("[%lu] [   ] Failed to load XTC\n", millis());
+  //LOG("[%lu] [   ] Failed to load XTC\n", millis());
   return nullptr;
 }
 

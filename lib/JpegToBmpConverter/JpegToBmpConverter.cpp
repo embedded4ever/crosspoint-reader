@@ -429,7 +429,7 @@ unsigned char JpegToBmpConverter::jpegReadCallback(unsigned char* pBuf, const un
 
 // Core function: Convert JPEG file to 2-bit BMP
 bool JpegToBmpConverter::jpegFileToBmpStream(FsFile& jpegFile, Print& bmpOut) {
-  Serial.printf("[%lu] [JPG] Converting JPEG to BMP\n", millis());
+  //LOG("[%lu] [JPG] Converting JPEG to BMP\n", millis());
 
   // Setup context for picojpeg callback
   JpegReadContext context = {.file = jpegFile, .bufferPos = 0, .bufferFilled = 0};
@@ -438,7 +438,7 @@ bool JpegToBmpConverter::jpegFileToBmpStream(FsFile& jpegFile, Print& bmpOut) {
   pjpeg_image_info_t imageInfo;
   const unsigned char status = pjpeg_decode_init(&imageInfo, jpegReadCallback, &context, 0);
   if (status != 0) {
-    Serial.printf("[%lu] [JPG] JPEG decode init failed with error code: %d\n", millis(), status);
+    //LOG("[%lu] [JPG] JPEG decode init failed with error code: %d\n", millis(), status);
     return false;
   }
 
@@ -500,7 +500,7 @@ bool JpegToBmpConverter::jpegFileToBmpStream(FsFile& jpegFile, Print& bmpOut) {
   // Allocate row buffer
   auto* rowBuffer = static_cast<uint8_t*>(malloc(bytesPerRow));
   if (!rowBuffer) {
-    Serial.printf("[%lu] [JPG] Failed to allocate row buffer\n", millis());
+    //LOG("[%lu] [JPG] Failed to allocate row buffer\n", millis());
     return false;
   }
 
@@ -519,7 +519,7 @@ bool JpegToBmpConverter::jpegFileToBmpStream(FsFile& jpegFile, Print& bmpOut) {
 
   auto* mcuRowBuffer = static_cast<uint8_t*>(malloc(mcuRowPixels));
   if (!mcuRowBuffer) {
-    Serial.printf("[%lu] [JPG] Failed to allocate MCU row buffer (%d bytes)\n", millis(), mcuRowPixels);
+    //LOG("[%lu] [JPG] Failed to allocate MCU row buffer (%d bytes)\n", millis(), mcuRowPixels);
     free(rowBuffer);
     return false;
   }
@@ -562,7 +562,7 @@ bool JpegToBmpConverter::jpegFileToBmpStream(FsFile& jpegFile, Print& bmpOut) {
       const unsigned char mcuStatus = pjpeg_decode_mcu();
       if (mcuStatus != 0) {
         if (mcuStatus == PJPG_NO_MORE_BLOCKS) {
-          Serial.printf("[%lu] [JPG] Unexpected end of blocks at MCU (%d, %d)\n", millis(), mcuX, mcuY);
+          //LOG("[%lu] [JPG] Unexpected end of blocks at MCU (%d, %d)\n", millis(), mcuX, mcuY);
         } else {
           Serial.printf("[%lu] [JPG] JPEG decode MCU failed at (%d, %d) with error code: %d\n", millis(), mcuX, mcuY,
                         mcuStatus);
@@ -733,6 +733,6 @@ bool JpegToBmpConverter::jpegFileToBmpStream(FsFile& jpegFile, Print& bmpOut) {
   free(mcuRowBuffer);
   free(rowBuffer);
 
-  Serial.printf("[%lu] [JPG] Successfully converted JPEG to BMP\n", millis());
+  //LOG("[%lu] [JPG] Successfully converted JPEG to BMP\n", millis());
   return true;
 }

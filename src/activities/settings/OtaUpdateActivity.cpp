@@ -17,12 +17,12 @@ void OtaUpdateActivity::onWifiSelectionComplete(const bool success) {
   exitActivity();
 
   if (!success) {
-    Serial.printf("[%lu] [OTA] WiFi connection failed, exiting\n", millis());
+    //LOG("[%lu] [OTA] WiFi connection failed, exiting\n", millis());
     goBack();
     return;
   }
 
-  Serial.printf("[%lu] [OTA] WiFi connected, checking for update\n", millis());
+  //LOG("[%lu] [OTA] WiFi connected, checking for update\n", millis());
 
   xSemaphoreTake(renderingMutex, portMAX_DELAY);
   state = CHECKING_FOR_UPDATE;
@@ -31,7 +31,7 @@ void OtaUpdateActivity::onWifiSelectionComplete(const bool success) {
   vTaskDelay(10 / portTICK_PERIOD_MS);
   const auto res = updater.checkForUpdate();
   if (res != OtaUpdater::OK) {
-    Serial.printf("[%lu] [OTA] Update check failed: %d\n", millis(), res);
+    //LOG("[%lu] [OTA] Update check failed: %d\n", millis(), res);
     xSemaphoreTake(renderingMutex, portMAX_DELAY);
     state = FAILED;
     xSemaphoreGive(renderingMutex);
@@ -40,7 +40,7 @@ void OtaUpdateActivity::onWifiSelectionComplete(const bool success) {
   }
 
   if (!updater.isUpdateNewer()) {
-    Serial.printf("[%lu] [OTA] No new update available\n", millis());
+    //LOG("[%lu] [OTA] No new update available\n", millis());
     xSemaphoreTake(renderingMutex, portMAX_DELAY);
     state = NO_UPDATE;
     xSemaphoreGive(renderingMutex);
@@ -67,11 +67,11 @@ void OtaUpdateActivity::onEnter() {
   );
 
   // Turn on WiFi immediately
-  Serial.printf("[%lu] [OTA] Turning on WiFi...\n", millis());
+  //LOG("[%lu] [OTA] Turning on WiFi...\n", millis());
   WiFi.mode(WIFI_STA);
 
   // Launch WiFi selection subactivity
-  Serial.printf("[%lu] [OTA] Launching WifiSelectionActivity...\n", millis());
+  //LOG("[%lu] [OTA] Launching WifiSelectionActivity...\n", millis());
   enterNewActivity(new WifiSelectionActivity(renderer, mappedInput,
                                              [this](const bool connected) { onWifiSelectionComplete(connected); }));
 }
@@ -115,7 +115,7 @@ void OtaUpdateActivity::render() {
 
   float updaterProgress = 0;
   if (state == UPDATE_IN_PROGRESS) {
-    Serial.printf("[%lu] [OTA] Update progress: %d / %d\n", millis(), updater.processedSize, updater.totalSize);
+    //LOG("[%lu] [OTA] Update progress: %d / %d\n", millis(), updater.processedSize, updater.totalSize);
     updaterProgress = static_cast<float>(updater.processedSize) / static_cast<float>(updater.totalSize);
     // Only update every 2% at the most
     if (static_cast<int>(updaterProgress * 50) == lastUpdaterPercentage / 2) {
@@ -188,7 +188,7 @@ void OtaUpdateActivity::loop() {
 
   if (state == WAITING_CONFIRMATION) {
     if (mappedInput.wasPressed(MappedInputManager::Button::Confirm)) {
-      Serial.printf("[%lu] [OTA] New update available, starting download...\n", millis());
+      //LOG("[%lu] [OTA] New update available, starting download...\n", millis());
       xSemaphoreTake(renderingMutex, portMAX_DELAY);
       state = UPDATE_IN_PROGRESS;
       xSemaphoreGive(renderingMutex);
@@ -197,7 +197,7 @@ void OtaUpdateActivity::loop() {
       const auto res = updater.installUpdate([this](const size_t, const size_t) { updateRequired = true; });
 
       if (res != OtaUpdater::OK) {
-        Serial.printf("[%lu] [OTA] Update failed: %d\n", millis(), res);
+        //LOG("[%lu] [OTA] Update failed: %d\n", millis(), res);
         xSemaphoreTake(renderingMutex, portMAX_DELAY);
         state = FAILED;
         xSemaphoreGive(renderingMutex);
